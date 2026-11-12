@@ -4,7 +4,6 @@ import {
   type Arena,
   Bullet,
   HEIGHT,
-  MAX_POWER,
   Player,
   WIDTH,
 } from "./actors.ts";
@@ -1281,7 +1280,7 @@ export class GameScene extends Phaser.Scene implements Arena {
       return;
     }
     this.run.hits++;
-    let lostLife = this.player.takeHit();
+    const lostLife = this.player.takeHit();
     this.hud.shudder(lostLife);
     this.cameras.main.shake(lostLife ? 260 : 120, lostLife ? 0.012 : 0.005);
     play(this, "hurt", 0.7);
