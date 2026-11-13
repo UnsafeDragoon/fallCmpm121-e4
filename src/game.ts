@@ -269,8 +269,7 @@ export class GameScene extends Phaser.Scene implements Arena {
       this.countdown.setText(`self-play demo in ${left}`);
       if (left <= 0) this.launch("attract");
     } else if (this.mode === "play" || this.mode === "attract") {
-      // const speed = this.mode === "attract" ? this.options.speed : 1;
-      const speed = this.mode === "attract" ? 8 : 1;
+      const speed = this.mode === "attract" ? this.options.speed : 1;
       // the play branch runs one tick per frame
       this.carry += Math.min(delta, 250) * speed;
       while (this.carry >= TICK_MS && this.scene.isActive()) {
