@@ -10,7 +10,8 @@
   --boss-text: #ff4d6d;
   --default-text: #e8fdff;
 
-  --header-font: `Orbitron, "Trebuchet MS", sans-serif`;
+  --header-font: Orbitron, "Trebuchet MS", sans-serif;
+  --default-font: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
 
   --border-radius: 10px;
   --tilt: 600px;
@@ -31,7 +32,7 @@ body {
   gap: var(--inner-gap);
   background: radial-gradient(ellipse at 50% 30%, #1a0f3a, #04020c 70%);
   color: var(--default-text);
-  font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  font-family: var(--default-font);
 }
 
 .cabinet {
