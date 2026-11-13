@@ -1,5 +1,24 @@
 /* Neon Warden: the HUD panels tilt toward the screen like an arcade cabinet. */
 
+/* Variable definitions */
+
+:root {
+  --base-color: #5ef2ff;
+  --panel-color: rgba(14, 10, 34, 1);
+  --active-text: #ffe066;
+  --unlit-text: #6f86a8;
+  --boss-text: #ff4d6d;
+  --default-text: #e8fdff;
+
+  --header-font: `Orbitron, "Trebuchet MS", sans-serif`;
+
+  --border-radius: 10px;
+  --tilt: 600px;
+
+  --inner-gap: 14px;
+  --route-gap: 10px;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -9,9 +28,9 @@ body {
   min-height: 100vh;
   display: grid;
   place-content: center;
-  gap: 14px;
+  gap: var(--inner-gap);
   background: radial-gradient(ellipse at 50% 30%, #1a0f3a, #04020c 70%);
-  color: #e8fdff;
+  color: var(--default-text);
   font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
 }
 
@@ -26,13 +45,13 @@ body {
   position: relative;
   z-index: 1;
   display: grid;
-  gap: 14px;
+  gap: var(--inner-gap);
   padding: 14px;
-  border: 1px solid rgba(94, 242, 255, 0.35);
-  border-radius: 10px;
-  background: rgba(14, 10, 34, 0.86);
-  box-shadow: 0 0 24px rgba(94, 242, 255, 0.15), inset 0 0 18px rgba(94, 242,
-    255, 0.08);
+  border: 1px solid color-mix(in srgb, var(--base-color) 35%, transparent);
+  border-radius: var(--border-radius);
+  background: color-mix(in srgb, var(--panel-color) 86%, transparent);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--base-color) 15%, transparent),
+    inset 0 0 18px color-mix(in srgb, var(--base-color) 08%, transparent);
   transition: opacity 400ms, transform 400ms;
 }
 
@@ -55,21 +74,21 @@ body {
 
 h2 {
   margin: 0 0 4px;
-  font: 600 11px/1 Orbitron, "Trebuchet MS", sans-serif;
+  font: 600 11px/1 var(--header-font);
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #6f86a8;
+  color: var(--unlit-text);
 }
 
 output {
   font-size: 22px;
-  color: #5ef2ff;
+  color: var(--base-color);
   text-shadow: 0 0 6px currentColor, 0 0 18px currentColor;
 }
 
 #best {
   font-size: 15px;
-  color: #ffe066;
+  color: var(--active-text);
 }
 
 .pips,
@@ -91,7 +110,7 @@ output {
 }
 
 .cell {
-  color: #ffe066;
+  color: var(--active-text);
 }
 
 .pip.lit,
@@ -108,11 +127,11 @@ output {
   display: none;
   margin: 0;
   padding: 4px 8px;
-  border: 1px solid #ffe066;
-  border-radius: 10px;
-  color: #ffe066;
+  border: 1px solid var(--active-text);
+  border-radius: var(--border-radius);
+  color: var(--active-text);
   text-align: center;
-  font: 600 11px/1.4 Orbitron, "Trebuchet MS", sans-serif;
+  font: 600 11px/1.4 var(--header-font);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   animation: blink 1.2s steps(2) infinite;
@@ -126,10 +145,10 @@ output {
   position: relative;
   width: 480px;
   height: 640px;
-  border-radius: 10px;
+  border-radius: var(--border-radius);
   overflow: hidden;
-  box-shadow: 0 0 0 2px rgba(94, 242, 255, 0.35), 0 0 40px rgba(94, 242, 255,
-    0.2);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--base-color) 35%, transparent),
+    0 0 40px color-mix(in srgb, var(--base-color) 20%, transparent);
 }
 
 #game,
@@ -144,19 +163,19 @@ output {
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 10px;
+  gap: var(--route-gap);
 }
 
 .stop {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--route-gap);
   font-size: 12px;
-  color: #6f86a8;
+  color: var(--unlit-text);
 }
 
 .stop[data-state="cleared"] {
-  color: #5ef2ff;
+  color: var(--base-color);
 }
 
 .stop[data-state="cleared"] .stop-dot {
@@ -164,7 +183,7 @@ output {
 }
 
 .stop[data-state="current"] {
-  color: #ffe066;
+  color: var(--active-text);
   text-shadow: 0 0 6px currentColor, 0 0 18px currentColor;
 }
 
@@ -173,11 +192,11 @@ output {
 }
 
 .stop:last-child {
-  color: #ff4d6d;
+  color: var(--boss-text);
 }
 
 .boss {
-  color: #ff4d6d;
+  color: var(--boss-text);
 }
 
 .boss h2 {
@@ -209,11 +228,12 @@ output {
   gap: 6px;
   padding: 14px;
   text-align: center;
-  background: linear-gradient(90deg, transparent, rgba(14, 10, 34, 0.9) 20% 80%,
+  background: linear-gradient(90deg, transparent, color-mix(in srgb,
+    var(--panel-color) 90%, transparent) 20% 80%,
     transparent);
   pointer-events: none;
   opacity: 0;
-  transform: perspective(600px) rotateX(90deg);
+  transform: perspective(var(--tilt)) rotateX(90deg);
 }
 
 .banner.show {
@@ -221,9 +241,9 @@ output {
 }
 
 .banner strong {
-  font: 700 26px/1.1 Orbitron, "Trebuchet MS", sans-serif;
+  font: 700 26px/1.1 var(--header-font);
   letter-spacing: 0.12em;
-  color: #ffe066;
+  color: var(--active-text);
   text-shadow: 0 0 6px currentColor, 0 0 18px currentColor;
 }
 
@@ -231,7 +251,7 @@ output {
   font-size: 13px;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: #e8fdff;
+  color: var(--default-text);
 }
 
 .caption {
@@ -239,7 +259,7 @@ output {
   inset: auto 8% 6%;
   margin: 0;
   padding: 10px 14px;
-  border-left: 3px solid #5ef2ff;
+  border-left: 3px solid var(--base-color);
   background: rgba(4, 2, 12, 0.75);
   font-size: 14px;
   line-height: 1.5;
@@ -257,7 +277,7 @@ output {
   margin: 0;
   text-align: center;
   font-size: 12px;
-  color: #6f86a8;
+  color: var(--unlit-text);
 }
 
 /* Impacts shake the whole cabinet; the panels keep their tilt while shaking. */
@@ -298,16 +318,16 @@ output {
 @keyframes banner {
   0% {
     opacity: 0;
-    transform: perspective(600px) rotateX(90deg);
+    transform: perspective(var(--tilt)) rotateX(90deg);
   }
   15%,
   80% {
     opacity: 1;
-    transform: perspective(600px) rotateX(0);
+    transform: perspective(var(--tilt)) rotateX(0);
   }
   100% {
     opacity: 0;
-    transform: perspective(600px) rotateX(-90deg);
+    transform: perspective(var(--tilt)) rotateX(-90deg);
   }
 }
 
