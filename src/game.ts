@@ -7,8 +7,7 @@ import {
   Player,
   WIDTH,
 } from "./actors.ts";
-import { ShmupBoss, ShmupPowerUp, ShmupPrefabSprite } from "./prefab.ts";
-import { Prefabs } from "./prefab.ts";
+import { Boss, Enemy, PowerUp, Prefabs } from "./actors.ts";
 import type { Hud } from "./hud.ts";
 import type { LaunchOptions } from "./main.ts";
 import { AutoPilot, KeyboardPilot, type Pilot } from "./pilots.ts";
@@ -18,6 +17,8 @@ import { makeTextures, TINTS } from "./textures.ts";
 import { Backdrop } from "./backdrop.ts";
 
 import { type EnemyKind, type FormationTypes, RouteDataMap } from "./route.ts";
+
+const DEV_TESTING = false;
 
 const TICK_MS = 1000 / 60;
 const START_LIVES = 3;
@@ -53,16 +54,16 @@ export class GameScene extends Phaser.Scene implements Arena {
   private run;
   private pilot!: Pilot;
   private backdrop!: Backdrop;
-  private enemies: ShmupPrefabSprite[] = [];
+  private enemies: Enemy[] = [];
   private shots: Bullet[] = [];
   private bullets: Bullet[] = [];
-  private pickups: ShmupPowerUp[] = [];
+  private pickups: PowerUp[] = [];
   private sector = -1;
   private sectorStart = 0;
   private enemy1;
   private enemy2;
   private enemy3;
-  private boss: ShmupBoss | null = null;
+  private boss: Boss | null = null;
   private bossDueAt = 0;
   private victoryAt = 0;
   private gameOver = false;
@@ -81,6 +82,9 @@ export class GameScene extends Phaser.Scene implements Arena {
   }
 
   init(data: { mode?: string }): void {
+    if (DEV_TESTING) {
+      this.options.speed = 200;
+    }
     // remember whether the cutscene follows a self-play run
     if (data.mode === "cutscene") {
       this.cutsceneAfterDemo = this.mode === "attract";
@@ -261,7 +265,7 @@ export class GameScene extends Phaser.Scene implements Arena {
     if (this.mode === "title") {
       if (this.leaving) return;
       this.idle += delta / 1000;
-      const left = Math.ceil(IDLE_SECONDS - this.idle);
+      const left = DEV_TESTING ? 0 : Math.ceil(IDLE_SECONDS - this.idle);
       this.countdown.setText(`self-play demo in ${left}`);
       if (left <= 0) this.launch("attract");
     } else if (this.mode === "play" || this.mode === "attract") {
@@ -332,7 +336,7 @@ export class GameScene extends Phaser.Scene implements Arena {
 
   summon(_kind: string, x: number, y: number): void {
     this.enemies.push(
-      new ShmupPrefabSprite(
+      new Enemy(
         this,
         x,
         y,
@@ -444,10 +448,10 @@ export class GameScene extends Phaser.Scene implements Arena {
     y: number,
     enemyName: EnemyKind,
     direction: number,
-  ): ShmupPrefabSprite {
+  ): Enemy {
     const info = Prefabs[enemyName];
 
-    const enemy = new ShmupPrefabSprite(
+    const enemy = new Enemy(
       this,
       x,
       y,
@@ -545,7 +549,7 @@ export class GameScene extends Phaser.Scene implements Arena {
 
   private startBoss(): void {
     this.bossDueAt = 0;
-    this.boss = new ShmupBoss(this);
+    this.boss = new Boss(this);
     this.boss.enableFilters();
     this.boss.filters?.internal.addGlow(TINTS.boss, 4, 0, 1);
     this.enemies.push(this.boss);
@@ -576,14 +580,14 @@ export class GameScene extends Phaser.Scene implements Arena {
     for (const pickup of this.pickups) {
       if (pickup.active && pickup.touches(this.player)) {
         pickup.setActive(false);
-        this.player.collect(pickup.prefabData.texture);
+        this.player.collect(pickup.type);
         play(this, "pickup", 0.6);
         this.burst(pickup.x, pickup.y, 14, TINTS.player);
       }
     }
   }
 
-  private destroyEnemy(enemy: ShmupPrefabSprite): void {
+  private destroyEnemy(enemy: Enemy): void {
     enemy.setActive(false);
     this.run.score += enemy.prefabData.score;
     this.run.kills++;
@@ -596,7 +600,7 @@ export class GameScene extends Phaser.Scene implements Arena {
       const kind = this.player.power < 3 && this.rng.chance(0.5)
         ? "spread"
         : "shield";
-      this.pickups.push(new ShmupPowerUp(this, enemy.x, enemy.y, kind));
+      this.pickups.push(new PowerUp(this, enemy.x, enemy.y, kind));
     }
   }
 
@@ -634,7 +638,7 @@ export class GameScene extends Phaser.Scene implements Arena {
     });
   }
 
-  private defeatBoss(boss: ShmupBoss): void {
+  private defeatBoss(boss: Boss): void {
     this.run.bossDefeated = true;
     this.victoryAt = this.now + VICTORY_TICKS;
     this.hud.setBoss(0);
@@ -650,10 +654,14 @@ export class GameScene extends Phaser.Scene implements Arena {
       this.explode(escort.x, escort.y, 1);
       escort.setActive(false);
     }
-    console.info(
+
+    const logmsg =
       `[self-play] seed=${this.options.seed} ticks=${this.now} score=${this.run.score}` +
-        ` kills=${this.run.kills} hits=${this.run.hits} continues=${this.run.continues}`,
-    );
+      ` kills=${this.run.kills} hits=${this.run.hits} continues=${this.run.continues}`;
+
+    console.info(logmsg);
+    if (DEV_TESTING) assertBehavior(logmsg);
+
     // A chain of blasts across the hull, then the big one.
     for (let i = 0; i < 8; i++) {
       this.time.delayedCall(i * 140, () => {
@@ -730,4 +738,16 @@ function sweep<T extends Actor>(
     actor.destroy();
     return false;
   });
+}
+
+function assertBehavior(log: string) {
+  const test: boolean =
+    "[self-play] seed=121 ticks=17922 score=35000 kills=162 hits=6 continues=1" ===
+      log;
+  console.assert(test, "ERROR! Behavior changed! Review last change.");
+
+  if (!test) {
+    return;
+  }
+  console.log("Consistent behavior.");
 }
