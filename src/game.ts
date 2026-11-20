@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 
-export const DEV_TESTING = true;
+export const DEV_TESTING = false;
 
 export const IDLE_SECONDS = 8;
 
