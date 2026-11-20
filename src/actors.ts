@@ -64,7 +64,7 @@ export interface PrefabInfo {
   readonly score: number;
   readonly radius: number;
   readonly dropChance: number;
-  readonly move?: (self: Enemy, arena?: Arena) => void;
+  readonly move?: (self: Enemy, arena: Arena) => void;
   readonly fire?: (self: Enemy, arena: Arena) => void;
 }
 
@@ -307,7 +307,7 @@ export class Boss extends Enemy {
 }
 
 export class PowerUp extends Actor {
-  constructor(scene: Phaser.Scene, x: number, y: number, kind) {
+  constructor(scene: Phaser.Scene, x: number, y: number, kind: prefabKind) {
     super(scene, x, y, Prefabs[kind].texture, Prefabs[kind].radius);
     this.type = Prefabs[kind].texture;
   }

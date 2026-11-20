@@ -25,7 +25,7 @@ interface Pair {
 
 interface FreshRun {
   score: number;
-  lives: typeof START_LIVES;
+  lives: number;
   kills: number;
   hits: number;
   continues: number;
@@ -37,9 +37,9 @@ export class PlayScene extends Phaser.Scene implements Arena {
   player!: Player;
   now = 0;
 
-  private run: FreshRun;
-  private backdrop!: Backdrop;
-  private pilot!: Pilot;
+  private run?: FreshRun;
+  private backdrop?: Backdrop;
+  private pilot?: Pilot;
   private enemies: Enemy[] = [];
   private shots: Bullet[] = [];
   private bullets: Bullet[] = [];
@@ -51,7 +51,7 @@ export class PlayScene extends Phaser.Scene implements Arena {
   private victoryAt = 0;
   private gameOver = false;
   private carry = 0;
-  private sparks!: Phaser.GameObjects.Particles.ParticleEmitter;
+  private sparks?: Phaser.GameObjects.Particles.ParticleEmitter;
 
   private mode: "play" | "attract" = "play";
 
@@ -118,12 +118,18 @@ export class PlayScene extends Phaser.Scene implements Arena {
     this.cameras.main.fadeIn(400, 4, 2, 12);
     this.startSector(0);
 
+    if (!this.input.keyboard) {
+      throw new Error("ERROR! NO VALID KEYBOARD INPUT DETECTED!");
+    }
     this.pilot = this.mode === "attract"
       ? new AutoPilot()
       : new KeyboardPilot(this.input.keyboard);
   }
 
   override update(_time: number, delta: number): void {
+    if (!this.backdrop) {
+      throw new Error("ERROR! BACKGROUND DOES NOT EXIST!");
+    }
     this.backdrop.scroll(delta);
     const speed = this.mode === "attract" ? this.options.speed : 1;
     // the play branch runs one tick per frame
@@ -182,6 +188,9 @@ export class PlayScene extends Phaser.Scene implements Arena {
   }
 
   private flyPlayer(): void {
+    if (!this.pilot) {
+      throw new Error("ERROR! PILOT OBJECT DOES NOT EXIST!");
+    }
     const controls = this.pilot.read({
       player: this.player,
       enemies: this.enemies,
@@ -405,6 +414,9 @@ export class PlayScene extends Phaser.Scene implements Arena {
 
   private destroyEnemy(enemy: Enemy): void {
     enemy.setActive(false);
+    if (!this.run) {
+      throw new Error("ERROR! FRESH RUN DEFINITION NULL!");
+    }
     this.run.score += enemy.prefabData.score;
     this.run.kills++;
     if (enemy === this.boss) {
@@ -422,6 +434,10 @@ export class PlayScene extends Phaser.Scene implements Arena {
 
   private hurtPlayer(): void {
     // After the Warden falls, nothing can hurt the ship during the victory lap.
+    if (!this.run) {
+      throw new Error("ERROR! FRESH RUN DEFINITION NULL!");
+    }
+
     if (this.run.bossDefeated || this.gameOver || !this.player.vulnerable) {
       return;
     }
@@ -452,6 +468,9 @@ export class PlayScene extends Phaser.Scene implements Arena {
   }
 
   private defeatBoss(boss: Boss): void {
+    if (!this.run) {
+      throw new Error("ERROR! FRESH RUN DEFINITION NULL!");
+    }
     this.run.bossDefeated = true;
     this.victoryAt = this.now + VICTORY_TICKS;
     this.hud.setBoss(0);
@@ -514,6 +533,9 @@ export class PlayScene extends Phaser.Scene implements Arena {
   }
 
   private burst(x: number, y: number, count: number, tint: number): void {
+    if (!this.sparks) {
+      return;
+    }
     this.sparks.particleTint = tint;
     this.sparks.explode(count, x, y);
   }
@@ -533,6 +555,9 @@ export class PlayScene extends Phaser.Scene implements Arena {
   }
 
   private refreshHud(): void {
+    if (!this.run) {
+      throw new Error("ERROR! FRESH RUN DEFINITION NULL!");
+    }
     this.hud.setScore(this.run.score);
     this.hud.setLives(this.run.lives);
     this.hud.setPower(this.player.power);

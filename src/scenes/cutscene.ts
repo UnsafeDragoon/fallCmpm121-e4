@@ -1,20 +1,13 @@
 import Phaser from "phaser";
 import { HEIGHT, WIDTH } from "../actors.ts";
 import type { Hud } from "../hud.ts";
-import { fade } from "../game.ts";
+import { fade, RunSummary } from "../game.ts";
 import { play } from "../sounds.ts";
 import { TINTS } from "../textures.ts";
 import { Backdrop } from "./backdrop.ts";
 
-interface RunSummary {
-  score: number;
-  kills: number;
-  hits: number;
-  continues: number;
-}
-
 interface CutsceneData {
-  run?: RunSummary;
+  run: RunSummary;
   afterDemo?: boolean;
 }
 

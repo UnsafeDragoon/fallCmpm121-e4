@@ -1,8 +1,15 @@
 import Phaser from "phaser";
 
-export const DEV_TESTING = false;
+export const DEV_TESTING = true;
 
 export const IDLE_SECONDS = 8;
+
+export interface RunSummary {
+  score: number;
+  kills: number;
+  hits: number;
+  continues: number;
+}
 
 export function fade(
   scene: Phaser.Scene,

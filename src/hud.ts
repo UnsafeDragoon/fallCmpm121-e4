@@ -35,13 +35,17 @@ export class Hud {
   /** Builds one route stop per sector. */
   setRoute(names: readonly string[]): void {
     this.route.replaceChildren();
-    this.stops = names.map((name) => {
-      const template = document.querySelector<HTMLTemplateElement>("#newRoute");
+    const template = find<HTMLTemplateElement>("#newRoute");
 
+    this.stops = names.map((name) => {
       const fragment = document.importNode(template.content, true);
 
       const stop = fragment.querySelector<HTMLElement>(".stop");
+      if (!stop) throw new Error("#newRoute is missing .stop");
+
       const label = stop.querySelector<HTMLElement>(".stop-name");
+      if (!label) throw new Error(".stop is missing .stop-name");
+
       label.textContent = name;
 
       this.route.appendChild(fragment);
